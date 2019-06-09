@@ -1,0 +1,15 @@
+{
+  "short_name": "CopyCat",
+  "name": "CopyCat - The shared clipboard",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#E7E7E7",
+  "background_color": "#E7E7E7"
+}

@@ -1,22 +1,54 @@
 {
-  "name": "electron-quick-start",
+  "name": "copycat-computer",
   "version": "1.0.0",
   "description": "A minimal Electron application",
+  "private": false,
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "dev": "react-scripts start",
+    "start": "concurrently \"cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "pack": "electron-builder --dir",
+    "dist": "npx build --x64 --macos --win --linux --c.extraMetadata.main=build/electron.js -p always"
   },
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/talhaHavadar/copycat",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "copycat",
+    "shared",
+    "clipboard",
+    "among your devices"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "Talha Can Havadar <havadartalha@gmail.com>",
+  "license": "GPLv3",
   "devDependencies": {
-    "electron": "^5.0.2"
+    "concurrently": "^4.1.0",
+    "cross-env": "^5.2.0",
+    "electron": "^5.0.2",
+    "electron-builder": "^20.43.0",
+    "electron-devtools-installer": "^2.2.4",
+    "react-scripts": "3.0.1",
+    "wait-on": "^3.2.0"
+  },
+  "dependencies": {
+    "electron-is-dev": "^1.1.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-dev-utils": "^9.0.1"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

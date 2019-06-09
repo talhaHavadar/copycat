@@ -1,27 +1,71 @@
-// Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
+const { app, BrowserWindow, shell, ipcMain, Menu, TouchBar } = require('electron');
+const { TouchBarButton, TouchBarLabel, TouchBarSpacer } = TouchBar;
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+const path = require('path');
+const isDev = require('electron-is-dev');
 
-function createWindow () {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
+let mainWindow;
 
-  // and load the index.html of the app.
-  mainWindow.loadFile('index.html')
+if (isDev) {
+  console.log('Running in development');
+} else {
+	console.log('Running in production');
+}
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+console.log(path.join(__dirname, '/build/index.html'))
 
+createWindow = () => {
+	mainWindow = new BrowserWindow({
+		backgroundColor: '#E7E7E7',
+		show: false,
+		titleBarStyle: 'hidden',
+		webPreferences: {
+			nodeIntegration: false,
+			preload: path.join(__dirname, '/public/preload.js'),
+		},
+		height: 860,
+		width: 417,
+  });
+  
+	mainWindow.loadURL(
+		isDev
+			? 'http://localhost:3000'
+			: `file://${path.join(__dirname, '/spa/build/index.html')}`,
+	);
+
+	if (isDev) {
+		const {
+			default: installExtension,
+			REACT_DEVELOPER_TOOLS,
+			REDUX_DEVTOOLS,
+		} = require('electron-devtools-installer');
+
+		installExtension(REACT_DEVELOPER_TOOLS)
+			.then(name => {
+				console.log(`Added Extension: ${name}`);
+			})
+			.catch(err => {
+				console.log('An error occurred: ', err);
+			});
+
+		installExtension(REDUX_DEVTOOLS)
+			.then(name => {
+				console.log(`Added Extension: ${name}`);
+			})
+			.catch(err => {
+				console.log('An error occurred: ', err);
+      });
+      mainWindow.webContents.openDevTools();
+	}
+
+	mainWindow.once('ready-to-show', () => {
+		mainWindow.show();
+
+		ipcMain.on('open-external-window', (event, arg) => {
+			shell.openExternal(arg);
+		});
+  });
+  
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
@@ -29,12 +73,84 @@ function createWindow () {
     // when you should delete the corresponding element.
     mainWindow = null
   })
-}
+
+};
+
+generateMenu = () => {
+	const template = [
+		{
+			label: 'File',
+			submenu: [{ role: 'about' }, { role: 'quit' }],
+		},
+		{
+			label: 'Edit',
+			submenu: [
+				{ role: 'undo' },
+				{ role: 'redo' },
+				{ type: 'separator' },
+				{ role: 'cut' },
+				{ role: 'copy' },
+				{ role: 'paste' },
+				{ role: 'pasteandmatchstyle' },
+				{ role: 'delete' },
+				{ role: 'selectall' },
+			],
+		},
+		{
+			label: 'View',
+			submenu: [
+				{ role: 'reload' },
+				{ role: 'forcereload' },
+				{ role: 'toggledevtools' },
+				{ type: 'separator' },
+				{ role: 'resetzoom' },
+				{ role: 'zoomin' },
+				{ role: 'zoomout' },
+				{ type: 'separator' },
+				{ role: 'togglefullscreen' },
+			],
+		},
+		{
+			role: 'window',
+			submenu: [{ role: 'minimize' }, { role: 'close' }],
+		},
+		{
+			role: 'help',
+			submenu: [
+				{
+					click() {
+						require('electron').shell.openExternal(
+							'https://github.com/talhahavadar/copycat',
+						);
+					},
+					label: 'Learn More',
+				},
+				{
+					click() {
+						require('electron').shell.openExternal(
+							'https://github.com/talhahavadar/copycat/issues',
+						);
+					},
+					label: 'File Issue on GitHub',
+				},
+			],
+		},
+	];
+
+	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+};
+
+ipcMain.on('load-page', (event, arg) => {
+	mainWindow.loadURL(arg);
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow();
+  generateMenu();
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {

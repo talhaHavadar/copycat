@@ -1,0 +1,4 @@
+- [x] Create 'Hello world!' app for personal computers.
+- [ ] Create 'Hello world!' app for Android.
+- [ ] Create 'Hello world!' app for iOS.
+- [ ] Write the sequence diagram for communication process between devices.

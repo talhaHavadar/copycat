@@ -1,2 +1,2 @@
 # copycat
-CopyCat - The shared clipboard application. 
+CopyCat - A shared clipboard application. 

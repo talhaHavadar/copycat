@@ -1,0 +1,18 @@
+.app-header {
+    box-shadow: 0px 0.5px 5px 0px #333;
+}
+
+.app-header > .content {
+    display: flex;
+    padding-top: .7rem;
+    padding-bottom: .7rem;
+}
+
+.app-header > .content > .hamburger {
+    margin-left: 1rem;
+}
+
+.app-header > .content > .title {
+    font-size: 22px;
+    flex-grow: 1;
+}

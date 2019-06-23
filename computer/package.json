@@ -33,8 +33,9 @@
   "dependencies": {
     "electron-is-dev": "^1.1.0",
     "react": "^16.8.6",
+    "react-dev-utils": "^9.0.1",
     "react-dom": "^16.8.6",
-    "react-dev-utils": "^9.0.1"
+    "uuidv4": "^4.0.0"
   },
   "eslintConfig": {
     "extends": "react-app"

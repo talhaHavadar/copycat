@@ -6,7 +6,13 @@
   "main": "public/electron.js",
   "build": {
     "appId": "com.talhahavadar.copycat",
+    "productName": "CopyCat - A Shared Clipboard",
+    "copyright": "Copyright © 2019 ${author}",
+    "win": {
+      "icon": "build/assets/icon.ico"
+    },
     "files": [
+      "*.js",
       "build/**/*",
       "node_modules/**/*"
     ],
@@ -20,7 +26,7 @@
     "start": "concurrently \"cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "pack": "electron-builder --dir",
+    "pack": "electron-builder",
     "dist": "npx build --x64 --macos --win --linux --c.extraMetadata.main=build/electron.js -p always"
   },
   "repository": "https://github.com/talhaHavadar/copycat",
@@ -30,7 +36,11 @@
     "clipboard",
     "among your devices"
   ],
-  "author": "Talha Can Havadar <havadartalha@gmail.com>",
+  "author": {
+    "name": "Talha Can Havadar",
+    "email": "havadartalha@gmail.com",
+    "url": "https://talhahavadar.com"
+  },
   "license": "GPLv3",
   "devDependencies": {
     "concurrently": "^4.1.0",

@@ -1,9 +1,9 @@
 {
   "short_name": "CopyCat",
-  "name": "CopyCat - The shared clipboard",
+  "name": "CopyCat - A shared clipboard",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "assets/icon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     }

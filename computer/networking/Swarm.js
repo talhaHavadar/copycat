@@ -2,7 +2,13 @@ const crypto = require('crypto')
 const Swarm = require('discovery-swarm')
 const defaults = require('dat-swarm-defaults')
 const getPort = require('get-port')
+const os = require('os')
 const COPYCAT_CHANNEL = "COPYCAT_APPLICATION_06072019_1326"
+
+const DataTypes = {
+    DATA_GREETING: 1,
+    DATA_TEXT: 2
+}
 
 class CopycatSwarm {
     constructor() {
@@ -14,6 +20,7 @@ class CopycatSwarm {
         this.totalConnections = 0;
         this.peers = {}
         this._ondata = undefined
+        this.deviceName = `${os.userInfo().username}(${os.platform()})`
     }
 
     setOnDataListener(listener) {
@@ -22,7 +29,6 @@ class CopycatSwarm {
 
     newConnection(conn, info) {
         // Connection id
-        console.log("conn", conn, "info", info)
         const connectionId = ++this.totalConnections
 
         const peerId = info.id.toString('hex')
@@ -39,8 +45,13 @@ class CopycatSwarm {
 
         conn.on('data', data => {
             console.log('Received Message from peer', peerId, '---->', data.toString())
-            if (this._ondata !== undefined) {
-                this._ondata(data)
+            let { type, content } = data
+            if (type == DataTypes.DATA_GREETING) {
+                this.peers[peerId].name = content
+            } else {
+                if (this._ondata !== undefined) {
+                    this._ondata(data)
+                }
             }
         })
 
@@ -60,13 +71,20 @@ class CopycatSwarm {
         this.peers[peerId].conn = conn
         this.peers[peerId].info = info
         this.peers[peerId].connectionId = connectionId
+        // conn.write({
+        //     type: DataTypes.DATA_GREETING,
+        //     content: this.deviceName
+        // })
     }
 
     broadcast(data) {
         for (const id in this.peers) {
             if (this.peers.hasOwnProperty(id)) {
                 const peer = this.peers[id];
-                peer.conn.write(data)
+                peer.conn.write({
+                    type: DataTypes.DATA_TEXT,
+                    content: data
+                })
             }
         }
     }

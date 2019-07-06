@@ -5,7 +5,6 @@ import DeviceListItem from './DeviceListItem';
 class DeviceList extends React.Component {
     render() {
         const devices = this.props.devices;
-        console.log("devices", devices);
         return (
             <div className="device-list">
                 {

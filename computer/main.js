@@ -149,16 +149,19 @@ ipcMain.on('load-page', (event, arg) => {
 app.on('ready', () => {
 	let sense = new CopycatSwarm();
 	let clipboardManager = new ClipboardManager();
+	var lastDataFromRemote = undefined
 	sense.start();
 	
 	clipboardManager.setChangeEvent((clip) => {
 		console.log("Clipboard Changed: ", clip);
-		sense.broadcast(clip);
+		if (clip !== lastDataFromRemote)
+			sense.broadcast(clip);
 	});
 
 	clipboardManager.startListening();
 	
 	sense.setOnDataListener((data) => {
+		lastDataFromRemote = data;
 		clipboardManager.copy(data.toString())
 	})
 
@@ -169,13 +172,12 @@ app.on('ready', () => {
 				const peer = sense.peers[id];
 				let device = {
 					id: peer.connectionId,
-					name: "Unnamed",
+					name: peer.name,
 					ip_addr: `${peer.info.host}:${peer.info.port}`
 				}
 				devices.push(device)
 			}
 		}
-		console.log("on getDevices: devices=>",devices);
 		event.returnValue = devices
 	})
 

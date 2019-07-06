@@ -20,7 +20,7 @@ createWindow = () => {
 		titleBarStyle: 'hidden',
 		webPreferences: {
 			nodeIntegration: false,
-			preload: path.join(__dirname, '/public/preload.js'),
+			preload: path.join(__dirname, '/preload.js'),
 		},
 		height: 860,
 		width: 417,
@@ -29,7 +29,7 @@ createWindow = () => {
 	mainWindow.loadURL(
 		isDev
 			? 'http://localhost:3000'
-			: `file://${path.join(__dirname, '/spa/build/index.html')}`,
+			: `file://${path.join(__dirname, '/build/index.html')}`,
 	);
 
 	if (isDev) {

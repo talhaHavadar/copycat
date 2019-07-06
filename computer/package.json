@@ -3,7 +3,18 @@
   "version": "1.0.0",
   "description": "A minimal Electron application",
   "private": false,
-  "main": "main.js",
+  "main": "public/electron.js",
+  "build": {
+    "appId": "com.talhahavadar.copycat",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories":{
+      "buildResources": "assets"
+    }
+  },
+  "homepage": "./",
   "scripts": {
     "dev": "react-scripts start",
     "start": "concurrently \"cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",

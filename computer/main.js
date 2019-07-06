@@ -72,6 +72,9 @@ createWindow = () => {
 			sense.broadcast(clip);
 		});
 		clipboardManager.startListening();
+		sense.setOnDataListener((data) => {
+			clipboardManager.copy(data.toString())
+		})
   });
   
   // Emitted when the window is closed.

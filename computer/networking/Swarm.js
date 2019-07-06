@@ -13,6 +13,11 @@ class CopycatSwarm {
         this.swarm = Swarm(this.config)
         this.totalConnections = 0;
         this.peers = {}
+        this._ondata = undefined
+    }
+
+    setOnDataListener(listener) {
+        this._ondata = listener;
     }
 
     newConnection(conn, info) {
@@ -34,6 +39,9 @@ class CopycatSwarm {
 
         conn.on('data', data => {
             console.log('Received Message from peer', peerId, '---->', data.toString())
+            if (this._ondata !== undefined) {
+                this._ondata(data)
+            }
         })
 
         conn.on('close', () => {

@@ -21,7 +21,7 @@ class CopycatSwarm {
         const connectionId = ++this.totalConnections
 
         const peerId = info.id.toString('hex')
-        log(`Connected #${connectionId} to peer: ${peerId}`)
+        console.log(`Connected #${connectionId} to peer: ${peerId}`)
 
         // Keep alive TCP connection with peer
         if (info.initiator) {

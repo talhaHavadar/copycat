@@ -45,12 +45,12 @@ class CopycatSwarm {
 
         conn.on('data', data => {
             console.log('Received Message from peer', peerId, '---->', data.toString())
-            let { type, content } = data
+            let { type, content } = JSON.parse(data)
             if (type == DataTypes.DATA_GREETING) {
                 this.peers[peerId].name = content
             } else {
                 if (this._ondata !== undefined) {
-                    this._ondata(data)
+                    this._ondata(content)
                 }
             }
         })
@@ -71,20 +71,20 @@ class CopycatSwarm {
         this.peers[peerId].conn = conn
         this.peers[peerId].info = info
         this.peers[peerId].connectionId = connectionId
-        // conn.write({
-        //     type: DataTypes.DATA_GREETING,
-        //     content: this.deviceName
-        // })
+        conn.write(JSON.stringify({
+            type: DataTypes.DATA_GREETING,
+            content: this.deviceName
+        }))
     }
 
     broadcast(data) {
         for (const id in this.peers) {
             if (this.peers.hasOwnProperty(id)) {
                 const peer = this.peers[id];
-                peer.conn.write({
+                peer.conn.write(JSON.stringify({
                     type: DataTypes.DATA_TEXT,
                     content: data
-                })
+                }))
             }
         }
     }

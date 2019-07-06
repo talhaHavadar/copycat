@@ -46,11 +46,20 @@ class CopycatSwarm {
         })
 
         // Save the connection
-        if (!peers[peerId]) {
-            peers[peerId] = {}
+        if (!this.peers[peerId]) {
+            this.peers[peerId] = {}
         }
-        peers[peerId].conn = conn
-        peers[peerId].connectionId = connectionId
+        this.peers[peerId].conn = conn
+        this.peers[peerId].connectionId = connectionId
+    }
+
+    broadcast(data) {
+        for (const id in this.peers) {
+            if (this.peers.hasOwnProperty(id)) {
+                const peer = this.peers[id];
+                peer.conn.write(data)
+            }
+        }
     }
 
     async start() {
@@ -58,7 +67,7 @@ class CopycatSwarm {
         this.swarm.listen(port)
         console.log("Copycat swarm starts listenin on port:", port)
         this.swarm.join(COPYCAT_CHANNEL)
-        this.swarm.on('connection', this.newConnection)
+        this.swarm.on('connection', this.newConnection.bind(this))
     }
 
 }

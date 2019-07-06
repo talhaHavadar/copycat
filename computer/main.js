@@ -69,6 +69,7 @@ createWindow = () => {
 		let clipboardManager = new ClipboardManager();
 		clipboardManager.setChangeEvent((clip) => {
 			console.log("Clipboard Changed: ", clip);
+			sense.broadcast(clip);
 		});
 		clipboardManager.startListening();
   });

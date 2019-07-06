@@ -40,6 +40,10 @@ class ClipboardManager {
         this.listen = false;
     }
 
+    copy(text) {
+        clipboard.writeText(text);
+    }
+
 }
 
 module.exports = ClipboardManager;

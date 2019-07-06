@@ -1,18 +1,17 @@
 const { app, BrowserWindow, shell, ipcMain, Menu, TouchBar } = require('electron');
 const { TouchBarButton, TouchBarLabel, TouchBarSpacer } = TouchBar;
-
+const CopycatSwarm = require('./networking/Swarm');
+const ClipboardManager = require('./clipboard/ClipboardManager');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
 let mainWindow;
 
 if (isDev) {
-  console.log('Running in development');
+	console.log('Running in development');
 } else {
 	console.log('Running in production');
 }
-
-console.log(path.join(__dirname, '/build/index.html'))
 
 createWindow = () => {
 	mainWindow = new BrowserWindow({
@@ -64,6 +63,14 @@ createWindow = () => {
 		ipcMain.on('open-external-window', (event, arg) => {
 			shell.openExternal(arg);
 		});
+		let sense = new CopycatSwarm();
+		sense.start();
+		
+		let clipboardManager = new ClipboardManager();
+		clipboardManager.setChangeEvent((clip) => {
+			console.log("Clipboard Changed: ", clip);
+		});
+		clipboardManager.startListening();
   });
   
   // Emitted when the window is closed.

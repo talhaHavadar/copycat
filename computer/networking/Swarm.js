@@ -58,6 +58,7 @@ class CopycatSwarm {
             this.peers[peerId] = {}
         }
         this.peers[peerId].conn = conn
+        this.peers[peerId].info = info
         this.peers[peerId].connectionId = connectionId
     }
 

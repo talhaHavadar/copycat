@@ -24,7 +24,7 @@ createWindow = () => {
 		},
 		height: 860,
 		width: 417,
-  });
+  	});
   
 	mainWindow.loadURL(
 		isDev
@@ -63,18 +63,6 @@ createWindow = () => {
 		ipcMain.on('open-external-window', (event, arg) => {
 			shell.openExternal(arg);
 		});
-		let sense = new CopycatSwarm();
-		sense.start();
-		
-		let clipboardManager = new ClipboardManager();
-		clipboardManager.setChangeEvent((clip) => {
-			console.log("Clipboard Changed: ", clip);
-			sense.broadcast(clip);
-		});
-		clipboardManager.startListening();
-		sense.setOnDataListener((data) => {
-			clipboardManager.copy(data.toString())
-		})
   });
   
   // Emitted when the window is closed.
@@ -159,8 +147,40 @@ ipcMain.on('load-page', (event, arg) => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-  createWindow();
-  generateMenu();
+	let sense = new CopycatSwarm();
+	let clipboardManager = new ClipboardManager();
+	sense.start();
+	
+	clipboardManager.setChangeEvent((clip) => {
+		console.log("Clipboard Changed: ", clip);
+		sense.broadcast(clip);
+	});
+
+	clipboardManager.startListening();
+	
+	sense.setOnDataListener((data) => {
+		clipboardManager.copy(data.toString())
+	})
+
+	ipcMain.on('getDevices', (event, arg) => {
+		let devices = []
+		for (const id in sense.peers) {
+			if (sense.peers.hasOwnProperty(id)) {
+				const peer = sense.peers[id];
+				let device = {
+					id: peer.connectionId,
+					name: "Unnamed",
+					ip_addr: `${peer.info.host}:${peer.info.port}`
+				}
+				devices.push(device)
+			}
+		}
+		console.log("on getDevices: devices=>",devices);
+		event.returnValue = devices
+	})
+
+	createWindow();
+	generateMenu();
 })
 
 // Quit when all windows are closed.

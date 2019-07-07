@@ -8,6 +8,11 @@
     "appId": "com.talhahavadar.copycat",
     "productName": "CopyCat - A Shared Clipboard",
     "copyright": "Copyright © 2019 ${author}",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "build/assets/icon.icns",
+      "type": "development"
+    },
     "win": {
       "icon": "build/assets/icon.png"
     },

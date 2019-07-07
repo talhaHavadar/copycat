@@ -146,7 +146,7 @@ generateMenu = () => {
 };
 
 generateTray = () => {
-	tray = new Tray(path.join(__dirname, '/assets/icons/32x32.png'))
+	tray = new Tray(path.join(__dirname, '/assets/TrayTemplate.png'))
 	var contextMenu = Menu.buildFromTemplate([
 		{
 			label: 'Show App', click: () => {

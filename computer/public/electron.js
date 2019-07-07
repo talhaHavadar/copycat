@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, ipcMain, Menu, TouchBar } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, Menu, TouchBar, Tray } = require('electron');
 const { TouchBarButton, TouchBarLabel, TouchBarSpacer } = TouchBar;
 const CopycatSwarm = require('./networking/Swarm');
 const ClipboardManager = require('./clipboard/ClipboardManager');
@@ -6,6 +6,7 @@ const path = require('path');
 const isDev = require('electron-is-dev');
 
 let mainWindow;
+let tray;
 
 if (isDev) {
 	console.log('Running in development');
@@ -24,8 +25,8 @@ createWindow = () => {
 		},
 		height: 860,
 		width: 417,
-  	});
-  
+	});
+
 	mainWindow.loadURL(
 		isDev
 			? 'http://localhost:3000'
@@ -53,8 +54,8 @@ createWindow = () => {
 			})
 			.catch(err => {
 				console.log('An error occurred: ', err);
-      });
-      mainWindow.webContents.openDevTools();
+			});
+		mainWindow.webContents.openDevTools();
 	}
 
 	mainWindow.once('ready-to-show', () => {
@@ -63,15 +64,20 @@ createWindow = () => {
 		ipcMain.on('open-external-window', (event, arg) => {
 			shell.openExternal(arg);
 		});
-  });
-  
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null
-  })
+	});
+
+	// Emitted when the window is closed.
+	mainWindow.on('closed', function () {
+		// Dereference the window object, usually you would store windows
+		// in an array if your app supports multi windows, this is the time
+		// when you should delete the corresponding element.
+		mainWindow = null
+	})
+
+	mainWindow.on('minimize', (event) => {
+		event.preventDefault()
+		mainWindow.hide()
+	})
 
 };
 
@@ -139,6 +145,34 @@ generateMenu = () => {
 	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 };
 
+generateTray = () => {
+	tray = new Tray(path.join(__dirname, '/assets/icons/32x32.png'))
+	var contextMenu = Menu.buildFromTemplate([
+		{
+			label: 'Show App', click: () => {
+				if (mainWindow != null)
+					mainWindow.show()
+				else
+					createWindow()
+			}
+		},
+		{
+			label: 'Quit', click: () => {
+				app.isQuiting = true;
+				app.quit();
+			}
+		}
+	]);
+	tray.setToolTip("Copycat - A Shared Clipboard")
+	tray.setContextMenu(contextMenu)
+	tray.on('double-click', (event, bounds) => {
+		if (mainWindow != null)
+			mainWindow.show()
+		else
+			createWindow()
+	})
+}
+
 ipcMain.on('load-page', (event, arg) => {
 	mainWindow.loadURL(arg);
 });
@@ -151,7 +185,7 @@ app.on('ready', () => {
 	let clipboardManager = new ClipboardManager();
 	var lastDataFromRemote = undefined
 	sense.start();
-	
+
 	clipboardManager.setChangeEvent((clip) => {
 		console.log("Clipboard Changed: ", clip);
 		if (clip !== lastDataFromRemote)
@@ -159,7 +193,7 @@ app.on('ready', () => {
 	});
 
 	clipboardManager.startListening();
-	
+
 	sense.setOnDataListener((data) => {
 		lastDataFromRemote = data;
 		clipboardManager.copy(data.toString())
@@ -183,19 +217,19 @@ app.on('ready', () => {
 
 	createWindow();
 	generateMenu();
+	generateTray();
 })
 
-// Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') app.quit()
+	// On macOS it is common for applications and their menu bar
+	// to stay active until the user quits explicitly with Cmd + Q
+	// if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('activate', function () {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) createWindow()
+	// On macOS it's common to re-create a window in the app when the
+	// dock icon is clicked and there are no other windows open.
+	if (mainWindow === null) createWindow()
 })
 
 // In this file you can include the rest of your app's specific main process

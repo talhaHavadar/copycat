@@ -16,7 +16,7 @@ class CopycatSwarm {
         this.config = defaults({
             id: this.id
         })
-        this.swarm = Swarm(this.config)
+        this.swarm = Swarm(/*this.config*/)
         this.totalConnections = 0;
         this.peers = {}
         this._ondata = undefined

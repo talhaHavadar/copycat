@@ -18,6 +18,16 @@
     background: #333;
 }
 
+.device-list-item > .status {
+    height: 26px;
+    width: 26px;
+}
+
+.device-list-item > .status.disabled path {
+    fill-opacity: .3;
+}
+
+
 .device-list-item > .name {
     margin-left: 1rem;
     font-weight: 500;

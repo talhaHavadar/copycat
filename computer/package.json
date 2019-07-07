@@ -9,7 +9,7 @@
     "productName": "CopyCat - A Shared Clipboard",
     "copyright": "Copyright © 2019 ${author}",
     "win": {
-      "icon": "build/assets/icon.ico"
+      "icon": "build/assets/icon.png"
     },
     "files": [
       "*.js",

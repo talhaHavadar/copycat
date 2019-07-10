@@ -4,10 +4,10 @@ import { ReactComponent as Logo } from '../logo.svg';
 
 class DeviceListItem extends React.Component {
     render() {
-        const {name, ip_addr} = this.props;
+        const {id, name, ip_addr, disabled} = this.props;
         return (
             <li className="device-list-item gradient-border">
-                <div className="status">
+                <div className={disabled ? "status disabled": "status"} onClick={this.toggleDeviceDisabledState.bind(this, id, disabled)}>
                     <Logo style={{ width:"100%", height:"100%"}}/>
                 </div>
                 <div className="name">{name}</div>
@@ -16,6 +16,14 @@ class DeviceListItem extends React.Component {
             </li>
         );
     }
+
+    toggleDeviceDisabledState(deviceId, currentState, e) {
+        if (window.isElectron) {
+            console.log(deviceId, currentState, e)
+            console.log("ipcRenderer updateDevice:", window.ipcRenderer.send("updateDevice", {id: deviceId,  disabled: !currentState }))
+        }
+    }
+
 }
 
 export default DeviceListItem;

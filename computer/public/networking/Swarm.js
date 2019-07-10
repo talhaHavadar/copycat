@@ -71,6 +71,7 @@ class CopycatSwarm {
         this.peers[peerId].conn = conn
         this.peers[peerId].info = info
         this.peers[peerId].connectionId = connectionId
+        this.peers[peerId].disabled = true
         conn.write(JSON.stringify({
             type: DataTypes.DATA_GREETING,
             content: this.deviceName
@@ -81,10 +82,27 @@ class CopycatSwarm {
         for (const id in this.peers) {
             if (this.peers.hasOwnProperty(id)) {
                 const peer = this.peers[id];
-                peer.conn.write(JSON.stringify({
-                    type: DataTypes.DATA_TEXT,
-                    content: data
-                }))
+                if (!peer.disabled) {
+                    peer.conn.write(JSON.stringify({
+                        type: DataTypes.DATA_TEXT,
+                        content: data
+                    }))
+                }
+            }
+        }
+    }
+
+    updateDevice(deviceConnectionId, updateData) {
+        for (const id in this.peers) {
+            if (this.peers.hasOwnProperty(id) && this.peers[id]["connectionId"] == deviceConnectionId) {
+                const peer = this.peers[id];
+                for (const key in updateData) {
+                    if (updateData.hasOwnProperty(key) && key != "id") {
+                        const value = updateData[key];
+                        peer[key] = value	
+                    }
+                }
+                break;
             }
         }
     }

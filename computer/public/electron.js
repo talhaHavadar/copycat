@@ -207,12 +207,18 @@ app.on('ready', () => {
 				let device = {
 					id: peer.connectionId,
 					name: peer.name,
-					ip_addr: `${peer.info.host}:${peer.info.port}`
+					ip_addr: `${peer.info.host}:${peer.info.port}`,
+					disabled: peer.disabled
 				}
 				devices.push(device)
 			}
 		}
 		event.returnValue = devices
+	})
+
+	ipcMain.on('updateDevice', (event, args) => {
+		let {id} = args
+		sense.updateDevice(id, args)
 	})
 
 	createWindow();

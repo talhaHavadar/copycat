@@ -3,6 +3,9 @@ const Swarm = require('discovery-swarm')
 const defaults = require('dat-swarm-defaults')
 const getPort = require('get-port')
 const os = require('os')
+const {machineIdSync} = require('node-machine-id')
+const settings = require('electron-settings')
+
 const COPYCAT_CHANNEL = "COPYCAT_APPLICATION_06072019_1326"
 
 const DataTypes = {
@@ -21,10 +24,15 @@ class CopycatSwarm {
         this.peers = {}
         this._ondata = undefined
         this.deviceName = `${os.userInfo().username}(${os.platform()})`
+        this.machineId = machineIdSync();
     }
 
     setOnDataListener(listener) {
         this._ondata = listener;
+    }
+
+    setOnWhitelistUpdatedListener(listener) {
+        this._onWhitelistUpdated = listener;
     }
 
     newConnection(conn, info) {
@@ -45,9 +53,16 @@ class CopycatSwarm {
 
         conn.on('data', data => {
             console.log('Received Message from peer', peerId, '---->', data.toString())
-            let { type, content } = JSON.parse(data)
+            data = JSON.parse(data)
+            let { type, content } = data
             if (type == DataTypes.DATA_GREETING) {
+                let allowedDevices = settings.get("whitelist", [])
+
                 this.peers[peerId].name = content
+                this.peers[peerId].machine = data.machine
+                if (allowedDevices.includes(this.peers[peerId].machine.id)) {
+                    this.peers[peerId].disabled = false
+                }
             } else {
                 if (this._ondata !== undefined) {
                     this._ondata(content)
@@ -74,6 +89,10 @@ class CopycatSwarm {
         this.peers[peerId].disabled = true
         conn.write(JSON.stringify({
             type: DataTypes.DATA_GREETING,
+            machine: {
+                name: this.deviceName,
+                id: this.machineId
+            },
             content: this.deviceName
         }))
     }
@@ -92,6 +111,12 @@ class CopycatSwarm {
         }
     }
 
+    notifyWhitelistUpdated(device) {
+        if (this._onWhitelistUpdated) {
+            this._onWhitelistUpdated(device)
+        }
+    }
+
     updateDevice(deviceConnectionId, updateData) {
         for (const id in this.peers) {
             if (this.peers.hasOwnProperty(id) && this.peers[id]["connectionId"] == deviceConnectionId) {
@@ -101,6 +126,9 @@ class CopycatSwarm {
                         const value = updateData[key];
                         peer[key] = value	
                     }
+                }
+                if (updateData.hasOwnProperty("disabled")) {
+                    this.notifyWhitelistUpdated(peer)
                 }
                 break;
             }

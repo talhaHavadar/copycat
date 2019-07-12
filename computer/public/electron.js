@@ -4,6 +4,7 @@ const CopycatSwarm = require('./networking/Swarm');
 const ClipboardManager = require('./clipboard/ClipboardManager');
 const path = require('path');
 const isDev = require('electron-is-dev');
+const settings = require('electron-settings');
 
 let mainWindow;
 let tray;
@@ -181,6 +182,7 @@ ipcMain.on('load-page', (event, arg) => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+	let allowedDevices = settings.get("whitelist", [])
 	let sense = new CopycatSwarm();
 	let clipboardManager = new ClipboardManager();
 	var lastDataFromRemote = undefined
@@ -197,6 +199,16 @@ app.on('ready', () => {
 	sense.setOnDataListener((data) => {
 		lastDataFromRemote = data;
 		clipboardManager.copy(data.toString())
+	})
+
+	sense.setOnWhitelistUpdatedListener((device) => {
+		if (device.disabled == false) {
+			allowedDevices.push(device.machine.id)
+			settings.set("whitelist", allowedDevices)
+		} else if (allowedDevices.includes(device.machine.id)) {
+			allowedDevices.splice(allowedDevices.indexOf(device.machine.id), 1)
+			settings.set("whitelist", allowedDevices)
+		}
 	})
 
 	ipcMain.on('getDevices', (event, arg) => {
@@ -217,7 +229,7 @@ app.on('ready', () => {
 	})
 
 	ipcMain.on('updateDevice', (event, args) => {
-		let {id} = args
+		let { id } = args
 		sense.updateDevice(id, args)
 	})
 

@@ -60,7 +60,7 @@ class CopycatSwarm {
 
                 this.peers[peerId].name = content
                 this.peers[peerId].machine = data.machine
-                if (allowedDevices.includes(this.peers[peerId].machine.id)) {
+                if (data.machine && allowedDevices.includes(this.peers[peerId].machine.id)) {
                     this.peers[peerId].disabled = false
                 }
             } else {

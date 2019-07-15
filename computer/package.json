@@ -1,6 +1,6 @@
 {
   "name": "copycat-computer",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A minimal Electron application",
   "private": false,
   "main": "public/electron.js",
@@ -23,7 +23,14 @@
     ],
     "directories": {
       "buildResources": "assets"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "talhahavadar",
+        "repo": "copycat"
+      }
+    ]
   },
   "homepage": "./",
   "scripts": {

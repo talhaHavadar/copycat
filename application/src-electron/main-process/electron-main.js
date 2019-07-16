@@ -1,5 +1,8 @@
-import { app, BrowserWindow, Menu, shell, Tray } from "electron";
+import { app, BrowserWindow, Menu, shell, Tray, ipcMain } from "electron";
 import path from "path";
+import settings from "electron-settings";
+import CopycatSwarm from "./networking/Swarm";
+import ClipboardManager from "./clipboard/ClipboardManager";
 
 /**
  * Set `__statics` path to static files in production;
@@ -15,6 +18,57 @@ let mainWindow;
 let tray;
 
 function startApp() {
+  let allowedDevices = settings.get("whitelist", []);
+	let sense = new CopycatSwarm();
+	let clipboardManager = new ClipboardManager();
+	var lastDataFromRemote = undefined;
+	sense.start();
+
+	clipboardManager.setChangeEvent((clip) => {
+		console.log("Clipboard Changed: ", clip);
+		if (clip !== lastDataFromRemote)
+			sense.broadcast(clip);
+	});
+
+	clipboardManager.startListening();
+
+	sense.setOnDataListener((data) => {
+		lastDataFromRemote = data;
+		clipboardManager.copy(data.toString())
+	});
+
+	sense.setOnWhitelistUpdatedListener((device) => {
+		if (device.disabled == false) {
+			allowedDevices.push(device.machine.id)
+			settings.set("whitelist", allowedDevices)
+		} else if (allowedDevices.includes(device.machine.id)) {
+			allowedDevices.splice(allowedDevices.indexOf(device.machine.id), 1)
+			settings.set("whitelist", allowedDevices)
+		}
+	});
+
+	ipcMain.on('getDevices', (event, arg) => {
+		let devices = []
+		for (const id in sense.peers) {
+			if (sense.peers.hasOwnProperty(id)) {
+				const peer = sense.peers[id];
+				let device = {
+					id: peer.connectionId,
+					name: peer.name,
+					ip_addr: `${peer.info.host}:${peer.info.port}`,
+					disabled: peer.disabled
+				}
+				devices.push(device)
+			}
+		}
+		event.returnValue = devices
+	});
+
+	ipcMain.on('updateDevice', (event, args) => {
+		let { id } = args
+		sense.updateDevice(id, args)
+	});
+
   createWindow();
   generateMenu();
   generateTray();

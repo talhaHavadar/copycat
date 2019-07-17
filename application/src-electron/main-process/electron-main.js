@@ -16,58 +16,58 @@ if (process.env.PROD) {
 
 let mainWindow;
 let tray;
+let swarm;
 
 function startApp() {
   let allowedDevices = settings.get("whitelist", []);
-	let sense = new CopycatSwarm();
-	let clipboardManager = new ClipboardManager();
-	var lastDataFromRemote = undefined;
-	sense.start();
+  swarm = new CopycatSwarm();
+  let clipboardManager = new ClipboardManager();
+  var lastDataFromRemote = undefined;
+  swarm.start();
 
-	clipboardManager.setChangeEvent((clip) => {
-		console.log("Clipboard Changed: ", clip);
-		if (clip !== lastDataFromRemote)
-			sense.broadcast(clip);
-	});
+  clipboardManager.setChangeEvent(clip => {
+    console.log("Clipboard Changed: ", clip);
+    if (clip !== lastDataFromRemote) swarm.broadcast(clip);
+  });
 
-	clipboardManager.startListening();
+  clipboardManager.startListening();
 
-	sense.setOnDataListener((data) => {
-		lastDataFromRemote = data;
-		clipboardManager.copy(data.toString())
-	});
+  swarm.setOnDataListener(data => {
+    lastDataFromRemote = data;
+    clipboardManager.copy(data.toString());
+  });
 
-	sense.setOnWhitelistUpdatedListener((device) => {
-		if (device.disabled == false) {
-			allowedDevices.push(device.machine.id)
-			settings.set("whitelist", allowedDevices)
-		} else if (allowedDevices.includes(device.machine.id)) {
-			allowedDevices.splice(allowedDevices.indexOf(device.machine.id), 1)
-			settings.set("whitelist", allowedDevices)
-		}
-	});
+  swarm.setOnWhitelistUpdatedListener(device => {
+    if (device.disabled == false) {
+      allowedDevices.push(device.machine.id);
+      settings.set("whitelist", allowedDevices);
+    } else if (allowedDevices.includes(device.machine.id)) {
+      allowedDevices.splice(allowedDevices.indexOf(device.machine.id), 1);
+      settings.set("whitelist", allowedDevices);
+    }
+  });
 
-	ipcMain.on('getDevices', (event, arg) => {
-		let devices = []
-		for (const id in sense.peers) {
-			if (sense.peers.hasOwnProperty(id)) {
-				const peer = sense.peers[id];
-				let device = {
-					id: peer.connectionId,
-					name: peer.name,
-					ip_addr: `${peer.info.host}:${peer.info.port}`,
-					disabled: peer.disabled
-				}
-				devices.push(device)
-			}
-		}
-		event.returnValue = devices
-	});
+  ipcMain.on("getDevices", (event, arg) => {
+    let devices = [];
+    for (const id in swarm.peers) {
+      if (swarm.peers.hasOwnProperty(id)) {
+        const peer = swarm.peers[id];
+        let device = {
+          id: peer.connectionId,
+          name: peer.name,
+          ip_addr: `${peer.info.host}:${peer.info.port}`,
+          disabled: peer.disabled
+        };
+        devices.push(device);
+      }
+    }
+    event.returnValue = devices;
+  });
 
-	ipcMain.on('updateDevice', (event, args) => {
-		let { id } = args
-		sense.updateDevice(id, args)
-	});
+  ipcMain.on("updateDevice", (event, args) => {
+    let { id } = args;
+    swarm.updateDevice(id, args);
+  });
 
   createWindow();
   generateMenu();
@@ -96,13 +96,14 @@ function createWindow() {
     mainWindow.show();
   });
 
-  mainWindow.on("closed", () => {
-    mainWindow = null;
-  });
-
-  mainWindow.on("minimize", event => {
-    event.preventDefault();
-    mainWindow.hide();
+  mainWindow.on("close", event => {
+    if (!app.isQuiting) {
+      event.preventDefault();
+      mainWindow.hide();
+      event.returnValue = false;
+    } else {
+      swarm.destroy();
+    }
   });
 }
 
@@ -110,20 +111,15 @@ function generateMenu() {
   const template = [
     {
       label: "File",
-      submenu: [{ role: "about" }, { role: "quit" }]
-    },
-    {
-      label: "Edit",
       submenu: [
-        { role: "undo" },
-        { role: "redo" },
-        { type: "separator" },
-        { role: "cut" },
-        { role: "copy" },
-        { role: "paste" },
-        { role: "pasteandmatchstyle" },
-        { role: "delete" },
-        { role: "selectall" }
+        { role: "about" },
+        {
+          label: "Quit",
+          click() {
+            app.isQuiting = true;
+            app.quit();
+          }
+        }
       ]
     },
     {
@@ -131,18 +127,8 @@ function generateMenu() {
       submenu: [
         { role: "reload" },
         { role: "forcereload" },
-        { role: "toggledevtools" },
-        { type: "separator" },
-        { role: "resetzoom" },
-        { role: "zoomin" },
-        { role: "zoomout" },
-        { type: "separator" },
-        { role: "togglefullscreen" }
+        { role: "toggledevtools" }
       ]
-    },
-    {
-      role: "window",
-      submenu: [{ role: "minimize" }, { role: "close" }]
     },
     {
       role: "help",
@@ -174,12 +160,12 @@ function generateTray() {
     {
       label: "Show App",
       click: () => {
+        if (mainWindow.isMinimized()) {
+          mainWindow.restore();
+        }
         if (mainWindow) {
-          console.log("Show App: mainWindow =>", mainWindow);
-          console.log("Show App: restore =>", mainWindow.restore());
-          console.log("Show App: show =>", mainWindow.show());
+          mainWindow.show();
         } else {
-          console.log("Show App: Create mainWindow =>", mainWindow);
           createWindow();
         }
       }

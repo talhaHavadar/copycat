@@ -1,6 +1,8 @@
-import { app, BrowserWindow, Menu, shell, Tray, ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 import path from "path";
 import settings from "electron-settings";
+import windows from "./windows";
+import tray from "./tray";
 import CopycatSwarm from "./networking/Swarm";
 import ClipboardManager from "./clipboard/ClipboardManager";
 
@@ -9,13 +11,10 @@ import ClipboardManager from "./clipboard/ClipboardManager";
  * The reason we are setting it here is that the path needs to be evaluated at runtime
  */
 if (process.env.PROD) {
-  global.__statics = require("path")
-    .join(__dirname, "statics")
-    .replace(/\\/g, "\\\\");
+  global.__statics = path.join(__dirname, "statics").replace(/\\/g, "\\\\");
 }
 
 let mainWindow;
-let tray;
 let swarm;
 
 function startApp() {
@@ -70,7 +69,7 @@ function startApp() {
   });
 
   createWindow();
-  generateMenu();
+  // generateMenu();
   generateTray();
 }
 
@@ -78,112 +77,57 @@ function createWindow() {
   /**
    * Initial window options
    */
-  mainWindow = new BrowserWindow({
-    backgroundColor: "#E7E7E7",
-    titleBarStyle: "hidden",
-    width: 417,
-    height: 860,
-    show: false,
-    // useContentSize: true,
-    webPreferences: {
-      nodeIntegration: true
-    }
-  });
-
-  mainWindow.loadURL(process.env.APP_URL);
-
-  mainWindow.once("ready-to-show", () => {
-    mainWindow.show();
-  });
-
-  mainWindow.on("close", event => {
-    if (!app.isQuiting) {
-      event.preventDefault();
-      mainWindow.hide();
-      event.returnValue = false;
-    } else {
-      swarm.destroy();
-    }
-  });
+  windows.main.init();
 }
 
 function generateMenu() {
-  const template = [
-    {
-      label: "File",
-      submenu: [
-        { role: "about" },
-        {
-          label: "Quit",
-          click() {
-            app.isQuiting = true;
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: "View",
-      submenu: [
-        { role: "reload" },
-        { role: "forcereload" },
-        { role: "toggledevtools" }
-      ]
-    },
-    {
-      role: "help",
-      submenu: [
-        {
-          click() {
-            shell.openExternal("https://github.com/talhahavadar/copycat");
-          },
-          label: "Learn More"
-        },
-        {
-          click() {
-            shell.openExternal(
-              "https://github.com/talhahavadar/copycat/issues"
-            );
-          },
-          label: "File Issue on GitHub"
-        }
-      ]
-    }
-  ];
-
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  // const template = [
+  //   {
+  //     label: "File",
+  //     submenu: [
+  //       { role: "about" },
+  //       {
+  //         label: "Quit",
+  //         click() {
+  //           app.isQuiting = true;
+  //           app.quit();
+  //         }
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     label: "View",
+  //     submenu: [
+  //       { role: "reload" },
+  //       { role: "forcereload" },
+  //       { role: "toggledevtools" }
+  //     ]
+  //   },
+  //   {
+  //     role: "help",
+  //     submenu: [
+  //       {
+  //         click() {
+  //           shell.openExternal("https://github.com/talhahavadar/copycat");
+  //         },
+  //         label: "Learn More"
+  //       },
+  //       {
+  //         click() {
+  //           shell.openExternal(
+  //             "https://github.com/talhahavadar/copycat/issues"
+  //           );
+  //         },
+  //         label: "File Issue on GitHub"
+  //       }
+  //     ]
+  //   }
+  // ];
+  // Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 function generateTray() {
-  tray = new Tray(path.join(__dirname, "../icons/linux-512x512.png"));
-  var contextMenu = Menu.buildFromTemplate([
-    {
-      label: "Show App",
-      click: () => {
-        if (mainWindow.isMinimized()) {
-          mainWindow.restore();
-        }
-        if (mainWindow) {
-          mainWindow.show();
-        } else {
-          createWindow();
-        }
-      }
-    },
-    {
-      label: "Quit",
-      click: () => {
-        app.isQuiting = true;
-        app.quit();
-      }
-    }
-  ]);
-  tray.setToolTip("Copycat - A Shared Clipboard");
-  tray.setContextMenu(contextMenu);
-  tray.on("double-click", () => {
-    if (mainWindow != null) mainWindow.show();
-    else createWindow();
-  });
+  tray.init();
 }
 
 app.on("ready", startApp);

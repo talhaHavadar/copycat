@@ -21,7 +21,7 @@ function getMenuTemplate() {
         {
           label: "Quit",
           click() {
-            app.isQuiting = true;
+            app.isQuitting = true;
             app.quit();
           }
         }

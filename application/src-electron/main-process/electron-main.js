@@ -1,11 +1,11 @@
-import { app, ipcMain } from "electron";
+import { app, ipcMain, clipboard } from "electron";
 import path from "path";
 import settings from "electron-settings";
 import windows from "./windows";
 import tray from "./tray";
 import menu from "./menu";
 import CopycatSwarm from "../../networking/Swarm";
-import ClipboardManager from "../../clipboard/ClipboardManager";
+import { ClipboardManager, ElectronClipboardAdapter } from "../../clipboard";
 
 /**
  * Set `__statics` path to static files in production;
@@ -21,7 +21,9 @@ let swarm;
 function startApp() {
   let allowedDevices = settings.get("whitelist", []);
   swarm = new CopycatSwarm();
-  let clipboardManager = new ClipboardManager();
+  let clipboardManager = new ClipboardManager(
+    new ElectronClipboardAdapter(clipboard)
+  );
   var lastDataFromRemote = undefined;
   swarm.start();
 

@@ -1,25 +1,14 @@
-/**
- *
- * https://github.com/electron/electron/issues/9035
- *
- * var rawFilePath = clipboard.read("FileGroupDescriptorW");
- * var filePath = rawFilePath.replace(new RegExp(String.fromCharCode(0), 'g'), '');
- *
- * ClipboardManager currently supports text copies but in future file copying will be supported.
- *
- */
-import { clipboard } from "electron";
-
 export default class ClipboardManager {
-  constructor(changeEvent) {
+  constructor(clipboard, changeEvent) {
     this.lastContent = undefined;
     this.clipboardChangeEvent = changeEvent || undefined;
     this.listen = true;
+    this.clipboard = clipboard;
   }
 
   startListening() {
     if (this.listen) {
-      let clip = clipboard.readText();
+      let clip = this.clipboard.read();
       if (this.lastContent !== clip) {
         this.lastContent = clip;
         if (this.clipboardChangeEvent) {
@@ -39,7 +28,7 @@ export default class ClipboardManager {
   }
 
   copy(text) {
-    clipboard.writeText(text);
+    this.clipboard.write(text);
   }
 
   destroy() {

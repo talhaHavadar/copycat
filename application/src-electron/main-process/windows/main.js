@@ -45,14 +45,6 @@ function init() {
     console.log("Dom Ready!");
   });
 
-  win.on("enter-full-screen", () => {
-    console.log("Enter full screen.");
-  });
-
-  win.on("leave-full-screen", () => {
-    console.log("Leave full screen.");
-  });
-
   win.once("ready-to-show", () => {
     win.show();
   });

@@ -4,8 +4,8 @@ import settings from "electron-settings";
 import windows from "./windows";
 import tray from "./tray";
 import menu from "./menu";
-import CopycatSwarm from "./networking/Swarm";
-import ClipboardManager from "./clipboard/ClipboardManager";
+import CopycatSwarm from "../../networking/Swarm";
+import ClipboardManager from "../../clipboard/ClipboardManager";
 
 /**
  * Set `__statics` path to static files in production;

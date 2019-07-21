@@ -3,6 +3,7 @@ import path from "path";
 import settings from "electron-settings";
 import windows from "./windows";
 import tray from "./tray";
+import menu from "./menu";
 import CopycatSwarm from "./networking/Swarm";
 import ClipboardManager from "./clipboard/ClipboardManager";
 
@@ -68,65 +69,13 @@ function startApp() {
     swarm.updateDevice(id, args);
   });
 
-  createWindow();
-  // generateMenu();
-  generateTray();
-}
-
-function createWindow() {
-  /**
-   * Initial window options
-   */
   windows.main.init();
-}
+  app.on("before-quit", () => {
+    clipboardManager.destroy();
+    swarm.destroy();
+  });
 
-function generateMenu() {
-  // const template = [
-  //   {
-  //     label: "File",
-  //     submenu: [
-  //       { role: "about" },
-  //       {
-  //         label: "Quit",
-  //         click() {
-  //           app.isQuiting = true;
-  //           app.quit();
-  //         }
-  //       }
-  //     ]
-  //   },
-  //   {
-  //     label: "View",
-  //     submenu: [
-  //       { role: "reload" },
-  //       { role: "forcereload" },
-  //       { role: "toggledevtools" }
-  //     ]
-  //   },
-  //   {
-  //     role: "help",
-  //     submenu: [
-  //       {
-  //         click() {
-  //           shell.openExternal("https://github.com/talhahavadar/copycat");
-  //         },
-  //         label: "Learn More"
-  //       },
-  //       {
-  //         click() {
-  //           shell.openExternal(
-  //             "https://github.com/talhahavadar/copycat/issues"
-  //           );
-  //         },
-  //         label: "File Issue on GitHub"
-  //       }
-  //     ]
-  //   }
-  // ];
-  // Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-}
-
-function generateTray() {
+  menu.init();
   tray.init();
 }
 

@@ -1,6 +1,7 @@
 let main = {
   hide,
   init,
+  dispatch,
   send,
   setProgress,
   setTitle,
@@ -19,12 +20,15 @@ function init() {
     return main.win.show();
   }
 
-  let win = (main.win = new electron.BrowserWindow({
+  // eslint-disable-next-line prettier/prettier
+  let win = main.win = new electron.BrowserWindow({
     backgroundColor: "#E7E7E7",
     darkTheme: true, // Forces dark theme (GTK+3)
     icon: getIconPath(), // Window icon (Windows, Linux)
     width: 417,
     height: 860,
+    resizable: false,
+    fullscreenable: false,
     show: false, // Hide window until renderer sends 'ipcReady'
     title: "Copycat - A shared clipboard",
     titleBarStyle: "hidden-inset", // Hide title bar (OS X)
@@ -32,7 +36,8 @@ function init() {
     webPreferences: {
       nodeIntegration: true
     }
-  }));
+    // eslint-disable-next-line prettier/prettier
+  });
 
   win.loadURL(process.env.APP_URL);
 
@@ -45,7 +50,7 @@ function init() {
   });
 
   win.on("leave-full-screen", () => {
-    console.log("Enter full screen.");
+    console.log("Leave full screen.");
   });
 
   win.once("ready-to-show", () => {
@@ -54,10 +59,14 @@ function init() {
 
   win.on("close", e => {
     if (process.platform !== "darwin" && !tray.hasTray()) {
+      app.isQuitting = true;
       app.quit();
     } else if (!app.isQuitting) {
       e.preventDefault();
       win.hide();
+    }
+    if (app.isQuitting) {
+      win.removeAllListeners();
     }
   });
 }
@@ -68,18 +77,23 @@ function hide() {
 }
 
 function getIconPath() {
+  let path = require("path");
   if (process.platform === "darwin") {
-    return "";
+    return path.join(__dirname, "../../icons/icon.icns");
   } else if (process.platform === "linux") {
-    return "";
+    return path.join(__dirname, "../../icons/linux-512x512.png");
   } else {
-    return "";
+    return path.join(__dirname, "../../icons/icon.ico");
   }
 }
 
 function send(...args) {
   if (!main.win) return;
   main.win.send(...args);
+}
+
+function dispatch(...args) {
+  send("dispatch", ...args);
 }
 
 /**

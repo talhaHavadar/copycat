@@ -15,8 +15,32 @@ if (process.env.PROD) {
   global.__statics = path.join(__dirname, "statics").replace(/\\/g, "\\\\");
 }
 
-let mainWindow;
 let swarm;
+
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (windows.main.win) {
+      if (windows.main.win.isMinimized()) windows.main.win.restore();
+      windows.main.win.focus();
+    }
+  });
+  app.on("ready", startApp);
+
+  app.on("window-all-closed", () => {
+    // if (process.platform !== "darwin") {
+    //   app.quit();
+    // }
+  });
+
+  app.on("activate", () => {
+    windows.main.init();
+  });
+}
 
 function startApp() {
   let allowedDevices = settings.get("whitelist", []);
@@ -80,17 +104,3 @@ function startApp() {
   menu.init();
   tray.init();
 }
-
-app.on("ready", startApp);
-
-app.on("window-all-closed", () => {
-  // if (process.platform !== "darwin") {
-  //   app.quit();
-  // }
-});
-
-app.on("activate", () => {
-  if (mainWindow === null) {
-    createWindow();
-  }
-});

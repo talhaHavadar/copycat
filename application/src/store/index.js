@@ -21,19 +21,5 @@ export default function(/* { ssrContext } */) {
     strict: process.env.DEV
   });
 
-  /*
-    if we want some HMR magic for it, we handle
-    the hot update like below. Notice we guard this
-    code with "process.env.DEV" -- so this doesn't
-    get into our production build (and it shouldn't).
-  */
-
-  if (process.env.DEV && module.hot) {
-    module.hot.accept(["./device"], () => {
-      const newShowcase = require("./device").default;
-      Store.hotUpdate({ modules: { showcase: newShowcase } });
-    });
-  }
-
   return Store;
 }

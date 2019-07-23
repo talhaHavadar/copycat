@@ -1,5 +1,5 @@
 <template>
-  <q-item clickable v-ripple class="device-list-item gradient-border">
+  <q-item clickable v-ripple class="device-list-item gradient-border" @click="updateDevice({ id: 111})">
     <q-item-section avatar>
       <q-avatar>
         <img :src="copyCatLogoSrc" />
@@ -66,6 +66,8 @@
 </style>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   name: "DeviceListItem",
   props: ["device"],
@@ -73,6 +75,9 @@ export default {
     return {
       copyCatLogoSrc: "statics/copycat-logo.png"
     }
-  }
+  },
+  methods: {
+    ...mapActions("device", ["updateDevice"])
+  }    
 };
 </script>

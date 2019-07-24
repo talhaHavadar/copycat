@@ -1,13 +1,16 @@
 <template>
   <div class="q-pa-md" style="width: 100%">
     <q-list>
-      <DeviceListItem v-for="device in devices" :key="device.id" :device="device" />
+      <DeviceListItem
+        v-for="device in devices"
+        :key="device.id"
+        :device="device"
+      />
     </q-list>
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
 
 <script>
 import DeviceListItem from "./devicelistItem";
@@ -34,7 +37,7 @@ export default {
           disabled: false
         }
       ]
-    }
+    };
   }
 };
 </script>

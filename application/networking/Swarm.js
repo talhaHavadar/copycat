@@ -23,6 +23,8 @@ export default class CopycatSwarm {
     this.totalConnections = 0;
     this.peers = {};
     this._ondata = undefined;
+    this._onWhitelistUpdated = undefined;
+    this._onDevicesUpdated = undefined;
     this.deviceName = `${os.userInfo().username}(${os.platform()})`;
     this.machineId = machineIdSync();
   }
@@ -33,6 +35,10 @@ export default class CopycatSwarm {
 
   setOnWhitelistUpdatedListener(listener) {
     this._onWhitelistUpdated = listener;
+  }
+
+  setOnDevicesUpdatedListener(listener) {
+    this._onDevicesUpdated = listener;
   }
 
   newConnection(conn, info) {
@@ -71,6 +77,9 @@ export default class CopycatSwarm {
         ) {
           this.peers[peerId].disabled = false;
         }
+        if (this._onDevicesUpdated) {
+          this._onDevicesUpdated(this.peers[peerId]);
+        }
       } else {
         if (this._ondata !== undefined) {
           this._ondata(content);
@@ -105,6 +114,9 @@ export default class CopycatSwarm {
         content: this.deviceName
       })
     );
+    if (this._onDevicesUpdated) {
+      this._onDevicesUpdated(this.peers[peerId]);
+    }
   }
 
   broadcast(data) {

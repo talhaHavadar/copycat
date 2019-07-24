@@ -34,7 +34,8 @@ function init() {
     titleBarStyle: "hidden-inset", // Hide title bar (OS X)
     useContentSize: true, // Specify web page size without OS chrome
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      preload: require("path").join(__statics, "preload.js")
     }
     // eslint-disable-next-line prettier/prettier
   });

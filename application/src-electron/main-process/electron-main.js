@@ -17,9 +17,9 @@ if (process.env.PROD) {
 
 let swarm;
 
-const gotTheLock = app.requestSingleInstanceLock();
+const gotTheLock = process.env.PROD && app.requestSingleInstanceLock();
 
-if (!gotTheLock) {
+if (!gotTheLock && process.env.PROD) {
   app.quit();
 } else {
   app.on("second-instance", (event, commandLine, workingDirectory) => {
@@ -70,6 +70,12 @@ function startApp() {
     } else if (allowedDevices.includes(device.machine.id)) {
       allowedDevices.splice(allowedDevices.indexOf(device.machine.id), 1);
       settings.set("whitelist", allowedDevices);
+    }
+  });
+
+  swarm.setOnDevicesUpdatedListener(device => {
+    if (device.name) {
+      windows.main.send("new-device-connected");
     }
   });
 

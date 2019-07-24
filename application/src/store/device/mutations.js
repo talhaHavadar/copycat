@@ -1,9 +1,8 @@
 import { Platform } from "quasar";
 
 export function refreshDevices(state) {
-  console.log("REFRESH_DEVICES", state);
   if (Platform.is.electron) {
-    // TODO: use ipcRenderer to fetch devices.
+    state.devices = window.ipcRenderer.sendSync("getDevices");
   }
 }
 export function updateDevice(state, id) {

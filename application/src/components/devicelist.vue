@@ -13,6 +13,7 @@
 <style scoped></style>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
 import DeviceListItem from "./devicelistItem";
 
 export default {
@@ -22,22 +23,24 @@ export default {
   },
   data() {
     return {
-      copyCatLogoSrc: "statics/copycat-logo.png",
-      devices: [
-        {
-          id: 1,
-          name: "Lisbon",
-          ip_addr: `192.168.1.6:6666`,
-          disabled: true
-        },
-        {
-          id: 2,
-          name: "Berlin",
-          ip_addr: `192.168.1.8:6666`,
-          disabled: false
-        }
-      ]
+      copyCatLogoSrc: "statics/copycat-logo.png"
     };
+  },
+  computed: {
+    ...mapGetters("device", ["devices"])
+  },
+  methods: {
+    ...mapActions("device", ["refreshDevices"])
+  },
+  mounted: function () {
+    this.$nextTick(function () {
+      this.refreshDevices();
+      if(this.$q.platform.is.electron) {
+        this.$q.electron.ipcRenderer.on("new-device-connected", () => {
+          this.refreshDevices();
+        });
+      }
+    })
   }
 };
 </script>

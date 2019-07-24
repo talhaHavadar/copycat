@@ -94,6 +94,9 @@ export default class CopycatSwarm {
       if (this.peers[peerId].connectionId === connectionId) {
         delete this.peers[peerId];
       }
+      if (this._onDevicesUpdated) {
+        this._onDevicesUpdated();
+      }
     });
 
     // Save the connection

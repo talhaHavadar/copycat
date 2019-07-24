@@ -73,10 +73,8 @@ function startApp() {
     }
   });
 
-  swarm.setOnDevicesUpdatedListener(device => {
-    if (device.name) {
-      windows.main.send("new-device-connected");
-    }
+  swarm.setOnDevicesUpdatedListener(() => {
+    windows.main.send("device-list-updated");
   });
 
   ipcMain.on("getDevices", (event, arg) => {

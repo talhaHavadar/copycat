@@ -1,13 +1,11 @@
 <template>
-  <div class="q-pa-md" style="width: 100%">
-    <q-list>
-      <DeviceListItem
-        v-for="device in devices"
-        :key="device.id"
-        :device="device"
-      />
-    </q-list>
-  </div>
+  <q-list>
+    <DeviceListItem
+      v-for="device in devices"
+      :key="device.id"
+      :device="device"
+    />
+  </q-list>
 </template>
 
 <style scoped></style>
@@ -32,15 +30,15 @@ export default {
   methods: {
     ...mapActions("device", ["refreshDevices"])
   },
-  mounted: function () {
-    this.$nextTick(function () {
+  mounted: function() {
+    this.$nextTick(function() {
       this.refreshDevices();
-      if(this.$q.platform.is.electron) {
-        this.$q.electron.ipcRenderer.on("new-device-connected", () => {
+      if (this.$q.platform.is.electron) {
+        this.$q.electron.ipcRenderer.on("device-list-updated", () => {
           this.refreshDevices();
         });
       }
-    })
+    });
   }
 };
 </script>

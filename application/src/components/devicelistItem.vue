@@ -3,11 +3,14 @@
     clickable
     v-ripple
     class="device-list-item gradient-border"
-    @click="updateDevice({ id: 111 })"
+    @click="updateDevice({ id: device.id, currentState: device.disabled })"
   >
     <q-item-section avatar>
-      <q-avatar>
-        <img :src="copyCatLogoSrc" />
+      <q-avatar size="26px">
+        <img
+          :src="copyCatLogoSrc"
+          :class="{ 'device-disabled': device.disabled }"
+        />
       </q-avatar>
     </q-item-section>
     <q-item-section>
@@ -24,6 +27,10 @@
   font-size: 16px;
   font-weight: lighter;
   margin-bottom: 2px;
+}
+
+img.device-disabled {
+  opacity: 0.3;
 }
 
 .name {

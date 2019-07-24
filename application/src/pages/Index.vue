@@ -1,5 +1,5 @@
 <template>
-  <q-page>
+  <q-page class="scroll">
     <DeviceList />
   </q-page>
 </template>

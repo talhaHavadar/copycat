@@ -1,7 +1,8 @@
-export async function updateDevice(context, { id }) {
-  context.commit("updateDevice", id);
+export async function updateDevice(context, payload) {
+  context.commit("updateDevice", payload);
+  await context.dispatch("refreshDevices");
 }
 
-export function refreshDevices(context) {
+export async function refreshDevices(context) {
   context.commit("refreshDevices");
 }

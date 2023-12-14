@@ -18,7 +18,7 @@ class DeviceListItem extends React.Component {
     }
 
     toggleDeviceDisabledState(deviceId, currentState, e) {
-        if (window.isElectron) {
+        if (window.ipcRenderer) {
             console.log(deviceId, currentState, e)
             console.log("ipcRenderer updateDevice:", window.ipcRenderer.send("updateDevice", {id: deviceId,  disabled: !currentState }))
         }

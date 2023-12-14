@@ -14,12 +14,13 @@ class App extends React.Component {
   }
 
   componentWillMount() {
-    if (window.isElectron) {
+    if (window.ipcRenderer) {
       this.refreshDevices()
     }
   }
 
   refreshDevices() {
+    console.debug(`refreshDevices:", this.state.devices`)
     this.setState({
       devices: window.ipcRenderer.sendSync("getDevices")
     })

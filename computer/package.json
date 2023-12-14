@@ -34,8 +34,8 @@
   },
   "homepage": "./",
   "scripts": {
-    "dev": "react-scripts start",
-    "start": "concurrently \"cross-env BROWSER=none react-scripts start\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev": "react-scripts --openssl-legacy-provider start",
+    "start": "concurrently \"cross-env BROWSER=none react-scripts --openssl-legacy-provider start\" \"wait-on http://localhost:3000 && electron .\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "pack": "electron-builder",

@@ -13,14 +13,15 @@ class App extends React.Component {
     this.refreshDevices = this.refreshDevices.bind(this)
   }
 
-  componentWillMount() {
+  componentDidMount() {
+    console.debug(`window.ipcRenderer: ${window.ipcRenderer}`)
     if (window.ipcRenderer) {
       this.refreshDevices()
     }
   }
 
   refreshDevices() {
-    console.debug(`refreshDevices:", this.state.devices`)
+    console.debug(`refreshDevices: ${this.state.devices}`)
     this.setState({
       devices: window.ipcRenderer.sendSync("getDevices")
     })

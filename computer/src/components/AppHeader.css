@@ -1,5 +1,7 @@
 .app-header {
     box-shadow: 0px 0.5px 5px 0px #333;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
 }
 
 .app-header > .content {

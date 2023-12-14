@@ -1,13 +1,13 @@
 {
   "name": "copycat-computer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A minimal Electron application",
   "private": false,
   "main": "public/electron.js",
   "build": {
     "appId": "com.talhahavadar.copycat",
     "productName": "CopyCat - A Shared Clipboard",
-    "copyright": "Copyright © 2019 ${author}",
+    "copyright": "Copyright © 2023 ${author}",
     "mac": {
       "category": "public.app-category.utilities",
       "icon": "build/assets/icon.icns",
@@ -36,10 +36,10 @@
   "scripts": {
     "dev": "react-scripts --openssl-legacy-provider start",
     "start": "concurrently \"cross-env BROWSER=none react-scripts --openssl-legacy-provider start\" \"wait-on http://localhost:3000 && electron .\"",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "build": "react-scripts --openssl-legacy-provider build",
+    "test": "react-scripts --openssl-legacy-provider test",
     "pack": "electron-builder",
-    "dist": "npx build --x64 --macos --win --linux --c.extraMetadata.main=build/electron.js -p always"
+    "dist": "npx build --x64 --win --macos --linux --c.extraMetadata.main=build/electron.js -p always"
   },
   "repository": "https://github.com/talhaHavadar/copycat",
   "keywords": [

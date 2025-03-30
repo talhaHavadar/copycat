@@ -13,6 +13,7 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    /// Lists the devices discovered by Copycat
     List {},
     /// Enables clipboard sharing between devices
     Enable {},

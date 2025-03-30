@@ -14,7 +14,9 @@ struct Cli {
 #[derive(Subcommand, Debug)]
 enum Commands {
     List {},
+    /// Enables clipboard sharing between devices
     Enable {},
+    /// Disables clipboard sharing between devices
     Disable {},
 }
 
@@ -23,6 +25,9 @@ fn main() {
     info!("Hello logging!");
     let args = Cli::parse();
 
-    println!("cli: {:?}", args);
-    println!("Hello, world!");
+    match args.command {
+        Commands::List {} => {}
+        Commands::Enable {} => {}
+        Commands::Disable {} => {}
+    }
 }
